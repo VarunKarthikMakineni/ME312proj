@@ -54,7 +54,7 @@ def cons8( model , lv ):
 
         total_dv = total_dv + model.initial_payload[lv,pd1]*model.deltav_matrix["initial_orbit",pd1]
     
-    return total_dv <= model.delta_v_limit
+    return total_dv <= model.deltav_limit
 
 def cons9( model , lv ):
 
@@ -69,6 +69,45 @@ def cons9( model , lv ):
     # print(total_dv)
     return total_mass <= model.mass_limit
 
-def is_subtour( model , pd ):
-    
-    pass
+def main_tour_pds( model ):
+
+    main_tour_pds = []
+
+    for lv in model.launch_vehicles:
+
+        if model.is_lv_active[lv].value == 0:
+
+            continue            # IF THE LV IS NOT ACTIVE, SKIP IT
+
+        # FIND THE INITIAL PAYLOAD ON THIS VEHICLE
+        # AND THEN FOLLOW IT TO THE LAST PAYLOAD IN THE ORDER
+
+        init_pd = None
+
+        for pd in model.payloads:
+
+            if model.initial_payload[lv,pd].value:   #INITIAL PAYLOAD ON THIS LV FOUND
+                init_pd = pd
+                break
+
+        main_tour_pds.append(init_pd)
+
+        search_pd = init_pd  # START SEARCHING FOR PAYLOADS AFTER INITPD
+
+        while search_pd is not None:    # RUN THIS LOOP TILL THE LAST PAYLOAD IN THIS ORDER
+
+            pd_found = False
+
+            for pd in model.payloads:
+
+                if model.launch_order[lv,pd,search_pd].value == 1:
+
+                    main_tour_pds.append(pd)
+                    search_pd = pd     # CONTINUE THE SEARCH WITH THE NEXT PAYLOAD IN ORDER
+                    pd_found = True
+                    break
+
+            if not pd_found:
+                break
+        
+    return main_tour_pds
