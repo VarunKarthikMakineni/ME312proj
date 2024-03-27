@@ -73,12 +73,51 @@ def load_input_file(filename):
         for row in csv_reader:
 
             pid = row[0]
-            mass = int(row[1])
-            orbit_radius = int(row[2])
-            orbit_inclination = int(row[3])
+            mass = float(row[1])
+            orbit_radius = float(row[2])
+            orbit_inclination = float(row[3])
             
             payloads[pid] = { "mass" : mass , "radius" : orbit_radius , "inclination" : orbit_inclination }
 
             # yield tuples
             # yield pyo.Set.End
         return initial_orbit , payloads
+
+# LOADS THE DATA ABOUT LAUNCH VEHICLES FROM A CSV FILE
+def load_lvs(filename):
+
+    with open(filename,"r") as f:
+
+        csv_reader = csv.reader(f)
+
+        # DROP THE HEADER LINE
+        for row in csv_reader:
+            break
+
+        # CREATE LIST TO STORE DATA AND ADD INITIAL ORBIT
+        lvs = {}
+        
+        # READ DATA INTO THE LIST
+        for row in csv_reader:
+
+            num = row[0]
+            mass_limit = float(row[1])
+            deltav_limit = float(row[2])
+            cost_to_launch = float(row[3])
+            
+            lvs[num] = { "mass_limit" : mass_limit , "deltav_limit" : deltav_limit , "cost_to_launch" : cost_to_launch }
+
+        return lvs
+
+def zero(*args):
+    return 0
+
+def dezero( x ):
+
+    new = []
+
+    for i in x:
+        if i != 0:
+            new.append(i)
+
+    return new
